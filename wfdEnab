@@ -1,0 +1,111 @@
+#!/usr/bin/python
+
+
+from adb_handler import AdbDevice
+adb_dev = AdbDevice()
+
+
+#def enable_content_protection():
+
+
+def get_owner(adb, my_file):
+    bits = adb.adb_command_and_get_output('shell ls -l ' + my_file)
+    bits_list = bits.split()
+    return bits_list[0].startswith('l'), bits_list[1], bits_list[2]
+
+
+def set_owner(adb, my_file, group, owner):
+    adb.adb_command('shell chown {group}:{owner} {file}'.format(group=group, owner=owner, file=my_file))
+
+
+#adb_dev.adb_command('pull /system/etc/wfdconfig.xml')
+#adb_dev.adb_command('pull /system/etc/wfdconfigsink.xml')
+# Modifying wfdconfig.xml ( Enable HDCP )
+# Modifying ContentProtection value to valid=1
+def mod_wfd():
+    import xml.etree.cElementTree as etree
+
+    tree = etree.parse(r"wfdconfig.xml")
+    root = tree.getroot()  # Reading the file
+    cp = root.find(".//Capability/ContentProtection/Valid")
+    for i in cp.iter('Valid'):  # Method to modifying an XML File
+        i.text = str(1)
+        print '##########################################'
+        print 'wfdconfig.xml modified: \nContentProtection: ' + i.tag + " = " + i.text
+        print '##########################################'
+        tree.write(r'wfdconfig.xml')
+
+def main():
+    adb_dev = AdbDevice()
+    adb_dev.adb_command('wait-for-device devices')
+    adb_dev.adb_command('root')
+    adb_dev.adb_command('remount')
+
+    files = ['/system/etc/wfdconfig.xml', '/system/etc/wfdconfigsink.xml']
+    file_found = False
+
+    for my_file in files:
+        try:
+            is_link, group, owner = get_owner(adb_dev, my_file)
+            if is_link:
+                print 'Found link - ignoring: ' + my_file
+                continue
+            adb_dev.adb_command('pull ' + my_file)
+            mod_wfd()
+            print 'modified xml'
+            adb_dev.adb_command('push ' + my_file)
+            adb_dev.adb_command('shell chmod 644 ' + my_file)
+            set_owner(adb_dev, my_file, group, owner)
+            print 'Pushed to ' + my_file
+        except Exception as e:
+            print 'Not found: ' + my_file + ' Error:' + str(e)
+            pass
+    if not file_found:
+        print 'WDF config file not found on device'
+    return
+
+
+if __name__ == '__main__':
+    main()
+
+        # Modifying wfdconfigsink.xml ( Enable HDCP )
+# Modifying ContentProtection value to valid=1
+#import xml.etree.cElementTree as etree
+
+#tree = etree.parse(r"wfdconfigsink.xml")
+#root = tree.getroot()  # Reading the file
+#cp = root.find(".//Capability/ContentProtection/Valid")
+#for i in cp.iter('Valid'):  # Method to modifying an XML File
+#    i.text = str(1)
+#    print '##########################################'
+#    print 'wfdconfigsink.xml modified: \nContentProtection: ' + i.tag + " = " + i.text
+ #   print '##########################################'
+#tree.write(r'wfdconfigsink.xml')
+#print '##########################################'
+# Pushing modified .xml files to device
+#adb_dev.adb_command('push wfdconfig.xml /system/etc/')
+#adb_dev.adb_command('push wfdconfigsink.xml /system/etc/')
+#adb_dev.adb_command('shell chmod 644 /system/etc/wfdconfig.xml')
+#adb_dev.adb_command('shell chown root:root /system/etc/wfdconfig.xml')
+#adb_dev.adb_command('shell chmod 644 /system/etc/wfdconfigsink.xml')
+#adb_dev.adb_command('shell chown root:root /system/etc/wfdconfigsink.xml')
+#print '##########################################'
+#print 'wfdconfigsink.xml & wfdconfig.xml pushed to device'
+#print '##########################################'
+#print ('      Content Protection enabled     ')
+#print '##########################################'
+#choice = raw_input("Back to main menu press 9 or 0 to Quit")
+#exec_menu(choice)
+#return
+
+
+# Back to main menu
+#def back():
+#    menu_actions['main_menu']()
+
+
+# Exit program
+#def exit():
+#    sys.exit()
+#
+#    menu_actions['main_menu']()

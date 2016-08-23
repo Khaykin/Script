@@ -1,0 +1,11 @@
+import subprocess
+
+from adb_handler import AdbDevice
+
+
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()
