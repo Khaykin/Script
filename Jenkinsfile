@@ -53,3 +53,7 @@ node {
     stage 'Stage 5'
     sh './tests_builder.sh'
 }
+}
+node {
+    echo 'jopa otrabotala ботала ботала'
+}
