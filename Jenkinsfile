@@ -56,3 +56,7 @@ node {
 node {
     echo 'jopa otrabotala ботала ботала'
 }
+node {
+    stage 'Stage 5'
+    mail bcc: '', body: 'build finished', cc: '', from: '', replyTo: '', subject: 'Script_master_tzinfra' , to: 'igor.haykin@sansasecurity.com'
+}
