@@ -58,5 +58,5 @@ node {
 }
 node {
     stage 'Stage 5'
-    mail bcc: '', body: 'build finished', cc: '', from: '', replyTo: '', subject: 'Script_master_tzinfra' , to: 'igor.haykin@sansasecurity.com'
+    mail bcc: '', body: 'build finished of "./tests_builder.sh"', cc: '', from: '', replyTo: '', subject: 'Script_master_tzinfra' , to: 'igor.haykin@sansasecurity.com'
 }
