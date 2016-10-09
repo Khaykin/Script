@@ -5,7 +5,6 @@ node {
 node {
    stage 'Stage 1'
    echo 'git checkout'
-   echo 'JJOOPPAA JJOOPPAA JJOOPPAA'
 }
 //node {
     //sh 'echo AOEU=$(echo aoeu) > propsfile'
@@ -13,7 +12,7 @@ node {
 node{
     stage 'Stage 2'
     gitClean()
-    checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '1', url: 'git@github.com:ARMmbed/ta-DxHDCP.git']]])
+    checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '1', url: 'https://github.com/ARMmbed/ta-TZInfra']]])
     echo 'git cleaned'
 }
 /**
@@ -48,11 +47,23 @@ echo 'build'
 
 
 node {
-    sh './Scripts/build_hdcp_and_tests.py -p Qualcomm -m MSM8996_LA2.0 -v 01450.1 -c yes'
+    sh './tests_builder.sh -p Qualcomm -v 01800.1 -m MSM8996_LA2.0_64bit --prov=yes -c'
 }
-echo 'HDCP buil finished'
+echo 'tests cleanup'
 
 node {
+    sh './tests_builder.sh -p Qualcomm -v 01800.1 -m MSM8996_LA2.0_64bit --prov=yes -a'
+}
+echo 'tests builded'
+
+node {
+    sh './run_tests.sh -xp'
+    echo 'tests pushed'
+}
+
+node {
+    sh 'adb shell ./data/tmp/run_tests.sh'
+node {
     stage 'Stage 5'
-    mail bcc: '', body: 'build HDCP finished for MSM8996_LA2.0 -v 01450.1 !!!', cc: '', from: '', replyTo: '', subject: 'HDCP master builded', to: 'igor.haykin@sansasecurity.com'
+    mail bcc: '', body: ' TZinfra tests build & tests finished for MSM8996_LA2.0 -v 01800.1 !!!', cc: '', from: '', replyTo: '', subject: 'HDCP master builded', to: 'igor.haykin@sansasecurity.com'
 }
