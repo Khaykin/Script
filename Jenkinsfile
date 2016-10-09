@@ -1,25 +1,20 @@
 #!/usr/bin
 node {
-    echo 'script xara'
+    echo 'xara'
 }
 node {
    stage 'Stage 1'
-   echo 'dve jopy'
-   stage 'Stage 2'
-   echo 'blablablabla'
+   echo 'git checkout'
+   echo 'JJOOPPAA JJOOPPAA JJOOPPAA'
 }
-node {
-    stage 'Stage 3'
-    sh 'rm -rf *'
-    sh 'ls -l'
-}
+//node {
+    //sh 'echo AOEU=$(echo aoeu) > propsfile'
+//}
 node{
-    stage 'Stage 4'
+    stage 'Stage 2'
     gitClean()
-    checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '1', url: 'git@github.com:ARMmbed/ta-TZInfra.git']]])
-}
-node {
-    echo 'jopa otrabotala'
+    checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '1', url: 'git@github.com:ARMmbed/ta-DxHDCP.git']]])
+    echo 'git cleaned'
 }
 /**
  * Clean a Git project workspace.
@@ -49,14 +44,15 @@ def gitClean() {
         }
     }
 }
+echo 'build'
+
+
+node {
+    sh './Scripts/build_hdcp_and_tests.py -p Qualcomm -m MSM8996_LA2.0 -v 01450.1 -c yes'
+}
+echo 'HDCP buil finished'
+
 node {
     stage 'Stage 5'
-    sh './tests_builder.sh'
-}
-node {
-    echo 'jopa otrabotala ботала ботала'
-}
-node {
-    stage 'Stage 5'
-    mail bcc: '', body: 'build finished of "./tests_builder.sh"', cc: '', from: '', replyTo: '', subject: 'Script_master_tzinfra' , to: 'igor.haykin@sansasecurity.com'
+    mail bcc: '', body: 'build HDCP finished for MSM8996_LA2.0 -v 01450.1 !!!', cc: '', from: '', replyTo: '', subject: 'HDCP master builded', to: 'igor.haykin@sansasecurity.com'
 }
